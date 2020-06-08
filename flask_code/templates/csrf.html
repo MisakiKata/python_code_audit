@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post" action="/csrf">
+
+    {# <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /> #}
+    <input type="text" name="name" value="" />
+    <input type="text" name="email" value="" />
+    <input type="submit" value="添加">
+</form>
+
+</body>
+</html>

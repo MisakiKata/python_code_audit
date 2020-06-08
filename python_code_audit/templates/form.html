@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSRF</title>
+</head>
+<body>
+{% if user %}
+    {% for i in user %}
+        <h4> {{ i.username }}--{{ i.email }}</h4>
+    {% endfor %}
+{% endif %}
+<form method="post">
+<!--    {% csrf_token %}   &lt;!&ndash; csrf token &ndash;&gt;-->
+    {{ form }}
+    <input type="submit" value="添加">
+</form>
+</body>
+</html>
