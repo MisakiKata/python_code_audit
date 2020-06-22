@@ -62,6 +62,42 @@ class LoginView(JsonResponseMixin, generic.TemplateView):
 
 生成的SQL语句就是`WHERE users.username = 'admin'`。对于上面那段代码，只要使用`{"passkey__contains":"a"}`，密码字段包含a就会造成注入。
 
+### 字典注入
+
+通常对数据操作的时候，是使用`User.objects.create(username=name)`这种形式，还有一种是利用字典进行数据操作，同样可以操作数据，但此时的问题就存在于字典键上，形式类似上面的参数名可控。
+
+```python
+dict = {'username':"admin", 'age':18}
+User.objects.create(**dict)
+```
+
+### 二次注入
+
+django数据库是ORM框架，使用django的数据库操作api的时候是可以防御SQL注入的，但是存在一种使用不当造成二次注入的情况，比如有此views
+
+```python
+def files(request):
+    if request.GET.get('url'):
+        url = request.GET.get('url')
+        File.objects.create(filename=url)
+        return HttpResponse('保存成功')
+    else:
+        filename = File.objects.get(pk=23).filename
+        cur = connection.cursor()
+        cur.execute("""select * from code_audit_file where filename='%s'""" %(filename))
+        str = cur.fetchall()
+        cur.close()
+        return HttpResponse(str)
+```
+
+当我们保存字段`filename`的时候，如果字段是`' or '1'='1`，则会自动转义为`\' or \'1\'=\'1`，但是其中的单引号并不会被去除，而是全部当作一个字符串被保存。后面如果使用拼接的SQL语句，就会触发SQL注入
+
+```
+select * from code_audit_file where filename='' or '1'='1'
+```
+
+就会造成如上的SQL语句，导致SQL注入的产生。
+
 列举几个django最近一年的几个SQL注入漏洞，[CVE-2020-7471](https://xz.aliyun.com/t/7218)，[CVE-2020-9402](https://xz.aliyun.com/t/7403)，[CVE-2019-14234](https://xz.aliyun.com/t/5896)
 
 ### 修复代码
