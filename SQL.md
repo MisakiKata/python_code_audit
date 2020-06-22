@@ -153,4 +153,3 @@ user = User.query.filter(User.id == id).first()
 ```
 [SQL: INSERT INTO users (name, email) VALUES (?, ?)]
 ```
-
